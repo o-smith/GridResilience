@@ -1,5 +1,10 @@
 # Code in support of the paper "The effect of renewable energy incorporation on power grid stability and resilience" 
 
+
+[![DOI](https://zenodo.org/badge/427405018.svg)](https://zenodo.org/badge/latestdoi/427405018)
+
+
+
 Respository containing data and code for "The effect of renewable energy incorporation on power grid stability and resilience" 
 
 ## Requirements
