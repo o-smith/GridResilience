@@ -1,24 +1,7 @@
 import numpy as np 
 import dill 
-import matplotlib.pyplot as plt 
 import glob, os
 from powerclasses import * 
-from matplotlib import colors 
-
-#Define colours 
-martaRed = "#c24c51" 
-martaGreen = "#54a666"
-martaBlue = "#4c70b0"
-martaPurple = "#7f70b0"
-martaGold = "#ccb873"
-Icolour = '#DB2420' #Central line red
-Ocolour = '#00A0E2' #Victoria line blue
-O2colour = '#868F98' #Jubilee line grey
-D2colour = '#F386A0' #Hammersmith line pink 
-D4colour = '#97015E' #Metropolitan line magenta
-D6colour = '#B05F0F' #Bakerloo line brown
-D5colour = '#00843D' #District line green 
-
 
 
 t = np.linspace(0,604800-1800,336)[:-24]
@@ -39,69 +22,6 @@ def compute_daily_profile(n, month, penetration):
 		traj.add_tajectory_point(P)
 	traj.convert_to_simplex_points() 
 	return traj 
-
-
-# def compute_daily_profile_with_stats(n, month, penetration, selection1, selection2):
-# 	G = MicroGrid() 
-# 	G.n = n 
-# 	G.penetration = penetration
-# 	G.month = month
-# 	G.make_houses() 
-# 	G.assign_genprofiles()
-# 	G.assign_powerprofiles() 
-
-# 	#Move through the day 
-# 	traj = Trajectory()
-# 	traj.n = n  
-# 	point1, point2 = 0, 0
-# 	point1_powstats, point2_powstats, point1_genstats, point2_genstats = [], [], [], []  
-# 	for t in tday_sample: 
-# 		P = G.get_power_vec(t) 
-# 		traj.add_tajectory_point(P)
-# 		G.get_power_breakdown(t) 
-# 		traj.tot_pow.append(G.pow_tot)
-# 		traj.tot_gen.append(G.gen_tot)
-# 		if t == selection1: 
-# 			G.get_hists(t)
-# 			point1 = traj.sigmas[-1]
-# 			point1_genstats = np.array(G.gen_stats)  
-# 			point1_powstats = np.array(G.pow_stats)  
-# 		if t == selection2:
-# 			G.get_hists(t)
-# 			point2 = traj.sigmas[-1] 
-# 			point2_genstats = np.array(G.gen_stats)  
-# 			point2_powstats = np.array(G.pow_stats)  
-# 	traj.convert_to_simplex_points() 
-# 	point1 = traj.convert_a_point(point1) 
-# 	point2 = traj.convert_a_point(point2) 
-# 	return traj, point1_genstats, point1_powstats, point2_genstats, point2_powstats, point1, point2 
-
-# tr, p1g, p1p, p2g, p2p, p1, p2 = compute_daily_profile_with_stats(20, 1, 19, tday_sample[2], tday_sample[24])
-# plot = TrajectoryPlotter(n=20)
-# plot.plot_trajectory(tr.simplex_points, 0.7, 1.5, "k", 0.05)
-# plot.plot_point(p1, color="green")
-# plot.plot_point(p2, color="red") 
-# plot.show_plot() 
-# plt.plot(tday_sample, tr.tot_pow)
-# plt.plot(tday_sample, tr.tot_gen)
-# plt.axvline(tday_sample[2])
-# plt.axvline(tday_sample[24]) 
-# plt.show() 
-# plt.clf() 
-# xinds = np.arange(0,19,1)
-# print(p1p)
-# plt.bar(xinds, p1p, color=martaRed)
-# plt.bar(xinds, p1g, bottom=p1p, color=martaBlue)
-# plt.show() 
-# plt.clf()
-# plt.bar(xinds, p2p, color=martaRed)
-# plt.bar(xinds, p2g, bottom=p2p, color=martaBlue)
-# plt.show() 
-# np.savetxt("data/p1p.txt", p1p)
-# np.savetxt("data/p1g.txt", p1g)
-# np.savetxt("data/p2p.txt", p2p)
-# np.savetxt("data/p2g.txt", p2g) 
-
 
 #Function to compute a weekly profile 
 def compute_weekly_profile(n, month, penetration, batteries=False): 
@@ -208,7 +128,7 @@ def do_ensemble_trajectories(ensemble_size, n, month, pen1, pen2):
 	return
 
 
-def read_in_ensemble_and_make_means(directory, n): 
+def read_in_ensemble_and_make_means(directory, title, n): 
 
 	plot = TrajectoryPlotter(n=n)
 
@@ -232,119 +152,30 @@ def read_in_ensemble_and_make_means(directory, n):
 	mean_traj.convert_to_simplex_points() 
 	plot.plot_trajectory(mean_traj.simplex_points, 0.8, 2.8, martaRed, 0.0) 
 
-	plot.show_plot() 
+	plot.show_plot(title) 
+
+try:
+	#Computing ensembles of random micro-grids from 
+	#the power usage data for half and full uptake, with and
+	#without batteries in January, April, July and October
+	do_ensemble_trajectories(50, 50, 1, 24, 49) 
+	do_ensemble_trajectories(50, 50, 4, 24, 49) 
+	do_ensemble_trajectories(50, 50, 7, 24, 49) 
+	do_ensemble_trajectories(50, 50, 10, 24, 49) 
+except FileNotFoundError: 
+	#PV and/or generation data has not been downloaded, 
+	#use pre-computed trajectories 
+	print("Reverting to precomputed trajectories...")
+
+print("Plotting trajectories...")
+read_in_ensemble_and_make_means("trajdata/1/halfpen_nobat/", "Winter: 50% penetration, no batteries", 50)
+read_in_ensemble_and_make_means("trajdata/1/fullpen_nobat/", "Winter: 100% penetration, no batteries", 50)
+read_in_ensemble_and_make_means("trajdata/1/halfpen_withbat/", "Winter: 100% penetration, with batteries", 50)
+read_in_ensemble_and_make_means("trajdata/7/halfpen_nobat/", "Summer: 50% penetration, no batteries", 50)
+read_in_ensemble_and_make_means("trajdata/7/fullpen_nobat/", "Summer: 100% penetration, no batteries", 50)
+read_in_ensemble_and_make_means("trajdata/7/halfpen_withbat/", "Summer: 100% penetration, with batteries", 50)
 
 
-# do_ensemble_trajectories(50, 50, 1, 24, 49)
-
-# tr1, tr2, tr3, tr4 = compute_all_weekly_profiles(50, 1, 24, 49) 
-# plot = TrajectoryPlotter(n=50)
-# plot.plot_trajectory(tr1.simplex_points, 0.2, 3.0, "k", 0.05)
-# plot.plot_trajectory(tr2.simplex_points, 0.2, 3.0, "k", 0.05)
-# plot.plot_trajectory(tr3.simplex_points, 0.2, 3.0, "k", 0.05)
-# plot.plot_trajectory(tr4.simplex_points, 0.2, 3.0, "k", 0.05)
-# plot.show_plot() 
-# # plt.plot(traj.maxpowers)
-# plt.show()
-
-
-read_in_ensemble_and_make_means("trajdata2/7/fullpen_withbat/", 50)
-
-
-
-# with open("data/trajdata/10/fullpen_nobat/8.pkl", "rb") as f:
-# 	traj = dill.load(f, encoding='latin1') 
-# print(type(traj))
-# print(traj.n)
-# for x in traj.maxpowers:
-# 	print(x)
-# plot = TrajectoryPlotter(n=traj.n)
-# plot.plot_trajectory(traj.simplex_points, 0.5, 1.5, "k", 0.05)
-# plot.show_plot() 
-
-
-
-
-# with open("data/trajdata/1/fullpen_nobat/0.pkl", "rb") as f:
-# 	traj = dill.load(f) 
-# print(type(traj))
-# print(traj.n)
-# for x in traj.maxpowers:
-# 	print(x)
-# plot = TrajectoryPlotter(n=100)
-# plot.plot_trajectory(traj.simplex_points, 0.6, 3.0, "k")
-# plot.show_plot() 
-# plt.plot(traj.maxpowers)
-# plt.show()
-
-
-
-
-
-# G = MicroGrid(n=2, month=1, penetration=1) 
-# G.make_houses() 
-# G.assign_genprofiles()
-# G.assign_powerprofiles() 
-# G.assign_batteries() 
-# d, p, s, ptot = [], [], [], []
-# for t in tweek_sample:
-# 	selected_house = G.houses[0]
-# 	P = selected_house.get_house_power(t)
-# 	ptot.append(P)
-# 	demand, production, storage = selected_house.get_states(t)
-# 	d.append(-demand)
-# 	p.append(production)
-# 	s.append(storage)
-
-# plt.plot(d, color="k")
-# plt.plot(p, color="r")
-# plt.plot(s, "o-", ms=3, color="b")
-# plt.plot(ptot, "k--", lw=3.0, alpha=0.5)
-# plt.show()
-
-
-
-# tr1, tr2 = compute_both_weekly_profiles(10, 1, 4)
-# # plot = TrajectoryPlotter(n=10)
-# # plot.plot_trajectory(tr1.simplex_points, 0.6, 3.0, "k")
-# # # plot.plot_trajectory(tr2.simplex_points, 0.6, 3.0, "b")
-# # plot.show_plot() 
-
-# print("none batteries:")
-# for point in tr1.battery_level:
-# 	print(point)
-# print("batteries:")
-# for point in tr2.battery_level:
-# 	print(point)
-
-# plt.plot(tr1.battery_level)
-# plt.plot(tr2.battery_level, color="r")
-# plt.show() 
-
-
-
-
-# traj = compute_weekly_profile(6, 1, 6)
-# for x in traj.simplex_points:
-# 	print(x)
-# print("Powers: ")
-# for x in traj.maxpowers:
-# 	print(x)  
-
-# plot = TrajectoryPlotter(n=6)
-# plot.plot_trajectory(traj.simplex_points, 0.6, 3.0)
-# plot.show_plot() 
-
-# with open("data/trajectories/test.pkl", "wb") as f:
-# 	dill.dump(traj, f) 
-# with open("data/trajectories/test.pkl", "rb") as f:
-# 	traj = dill.load(f) 
-# print(type(traj))
-# for x in traj.maxpowers:
-# 	print(x)
-# plot = TrajectoryPlotter(n=6)
-# plot.plot_trajectory(traj.simplex_points, 0.6, 3.0)
-# plot.show_plot() 
 
 
 

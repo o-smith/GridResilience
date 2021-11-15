@@ -326,7 +326,7 @@ function swingfracture!(net::Graph, ψ::Vector{Float64}, nodeset::Vector{Int64},
 end
 
 
-function swingfracturewithtime!(net::Graph, ψ::Vector{Float64}, nodeset::Vector{Int64}, P::Vector{Float64}, synctol::Float64, alpha::Float64, kappa::Float64, maxflow::Float64)
+function swingfracturewithtime!(net::Graph, ψ::Vector{Float64}, nodeset::Vector{Int64}, P::Vector{Float64}, synctol::Float64, alpha::Float64, kappa::Float64, maxflow::Float64, D::Float64)
 
 	tol = 1e-5
 
@@ -443,7 +443,7 @@ function swingfracturewithtime!(net::Graph, ψ::Vector{Float64}, nodeset::Vector
 	affect!(integrator) = terminate!(integrator)
 
 	#Time step 
-	f(u, p, t) = fswing(u, obj1.adjmat, P1, 1.0, 1.0, kappa)
+	f(u, p, t) = fswing(u, obj1.adjmat, P1, 1.0, D, kappa)
 	tspan = (0.0, 500.0)
 	prob = ODEProblem(f, ψ, tspan) 
 	cb = DiscreteCallback(condition, affect!) 
@@ -513,7 +513,7 @@ function swingfracturewithtime!(net::Graph, ψ::Vector{Float64}, nodeset::Vector
 		end
 		ψ_subset[1:n_subset] = ω_subset
 		ψ_subset[n_subset+1:end] = θ_subset
-		xz, tz = swingfracturewithtime!(net, ψ_subset, nodesubset, P, synctol, alpha, kappa, maxflow) 
+		xz, tz = swingfracturewithtime!(net, ψ_subset, nodesubset, P, synctol, alpha, kappa, maxflow, D) 
 		descendent_edges += xz
 		push!(times, tz)
 	end 
@@ -797,7 +797,7 @@ function swingcascadeandtvalpha(ensemblesize::Int64, n::Int64, ns::Int64, nd::In
 				end
 				ψ_subset[1:n_subset] = ω_subset
 				ψ_subset[n_subset+1:end] = θ_subset
-				edgessurviving, timetaken = swingfracturewithtime!(net, ψ_subset, nodesubset, P, 3.0, alpha, κ, flowmax_swing)
+				edgessurviving, timetaken = swingfracturewithtime!(net, ψ_subset, nodesubset, P, 3.0, alpha, κ, flowmax_swing, D)
 				totedgessurviving += edgessurviving
 				push!(timetakenvec, timetaken)
 			end
@@ -895,7 +895,7 @@ function svt(ensemblesize::Int64, n::Int64, ns::Int64, nd::Int64, q::Float64,
 			end
 			ψ_subset[1:n_subset] = ω_subset
 			ψ_subset[n_subset+1:end] = θ_subset
-			edgessurviving, timetaken = swingfracturewithtime!(net, ψ_subset, nodesubset, P, 3.0, alpha, κ, flowmax_swing)
+			edgessurviving, timetaken = swingfracturewithtime!(net, ψ_subset, nodesubset, P, 3.0, alpha, κ, flowmax_swing, D)
 			totedgessurviving += edgessurviving
 			push!(timetakenvec, timetaken)
 		end

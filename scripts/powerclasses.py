@@ -1,11 +1,6 @@
-import glob, os
-import dill  
 import numpy as np 
 import matplotlib
-import matplotlib.pyplot as plt 
 import ternary 
-from matplotlib import colors
-from ternary.helpers import simplex_iterator
 from scipy.interpolate import interp1d
 from powerreader import * 
 from numpy.random import rand 
@@ -363,7 +358,7 @@ class TrajectoryPlotter:
 		self.__dict__.update(kwargs)
 		scale = self.n 
 		self.figure, self.tax = ternary.figure(scale=scale-2)
-		self.figure.set_size_inches(5, 5)
+		self.figure.set_size_inches(8, 8)
 		self.figure.set_dpi(90)
 		self.tax.boundary(linewidth=0.2) 
 
@@ -388,8 +383,9 @@ class TrajectoryPlotter:
 		self.tax.scatter(x, color=color)
 
 
-	def show_plot(self, **kwargs):
+	def show_plot(self, title="simplex", **kwargs):
 		self.__dict__.update() 
+		self.tax.set_title(title)
 		self.tax.get_axes().axis('off')
 		self.tax.clear_matplotlib_ticks()
 		self.tax.show()

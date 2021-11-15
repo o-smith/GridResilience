@@ -373,9 +373,6 @@ function noisysourcesinkvector(sources::Vector{Int64}, sinks::Vector{Int64}, n::
 	return P 
 end
 
-#Make gamma function noise, set up qndriver and the bash script 
-#make sure things are set up for the skewed and noisy cases
-#Do a test run on the hpc with the regular settings to make sure its all the same 
 
 
 
