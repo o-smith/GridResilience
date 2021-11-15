@@ -1,5 +1,7 @@
 # Code in support of the paper "The effect of renewable energy incorporation on power grid stability and resilience" 
 
+Respository containing data and code for "The effect of renewable energy incorporation on power grid stability and resilience" 
+
 ## Requirements
 
 The code requires Python with the packages: 
